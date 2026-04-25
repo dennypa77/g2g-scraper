@@ -89,7 +89,7 @@ Output di terminal akan show progress 5 step (Roblox → G2G → Itemku → Comb
 
 ### Mode 3 — GitHub Actions (Auto Cron, Cloud)
 
-Sudah aktif di repo ini. Berjalan **otomatis tiap jam** (menit ke-5 UTC).
+Sudah aktif di repo ini. Berjalan **otomatis tiap jam** (menit ke-5 UTC = menit ke-5 setiap jam WIB juga, karena offset jam-nya konstan).
 
 **Setup yang sudah dilakukan**:
 - Workflow file: `.github/workflows/scan.yml`
@@ -122,7 +122,7 @@ Sudah aktif di repo ini. Berjalan **otomatis tiap jam** (menit ke-5 UTC).
 | Score | Composite — yang paling tinggi = kandidat terbaik |
 | Trend 7d | (placeholder, future) |
 | Roblox / G2G / Itemku Link | Direct link |
-| Last Updated UTC | Timestamp scan |
+| Last Updated WIB | Timestamp scan dalam Asia/Jakarta (UTC+7) |
 
 Sort otomatis by **Score desc**, fallback **CCU desc**.
 

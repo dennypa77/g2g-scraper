@@ -10,9 +10,11 @@ Steps:
 from __future__ import annotations
 
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from math import log
 from pathlib import Path
+
+WIB = timezone(timedelta(hours=7), name="WIB")  # Asia/Jakarta, no DST
 
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -65,7 +67,7 @@ def main() -> int:
     print(f"      USD->IDR exchange rate: {rate:,.2f}")
 
     print("[4/5] Combining + computing margin/score...")
-    now_utc = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    now_wib = datetime.now(WIB).strftime("%Y-%m-%d %H:%M:%S WIB")
     rows: list[list] = []
 
     for canonical, alias_kws in aliases.items():
@@ -118,7 +120,7 @@ def main() -> int:
             roblox_link,                   # Roblox Link
             g2g_link,                      # G2G Link
             itemku_link,                   # Itemku Link
-            now_utc,                       # Last Updated UTC
+            now_wib,                       # Last Updated WIB
         ])
 
     rows.sort(key=lambda r: (r[9], r[1]), reverse=True)  # by Score desc, then CCU desc
@@ -135,7 +137,7 @@ def main() -> int:
 
     history = sh.worksheet(HISTORY_TAB)
     history_rows = [[
-        now_utc,    # Snapshot UTC
+        now_wib,    # Snapshot WIB
         r[0],       # Game Name
         r[1],       # CCU
         r[2],       # Tradable

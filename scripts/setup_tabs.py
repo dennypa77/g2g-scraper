@@ -21,11 +21,11 @@ LATEST_HEADERS = [
     "Roblox Link",
     "G2G Link",
     "Itemku Link",
-    "Last Updated UTC",
+    "Last Updated WIB",
 ]
 
 HISTORY_HEADERS = [
-    "Snapshot UTC",
+    "Snapshot WIB",
     "Game Name",
     "CCU",
     "Tradable",
