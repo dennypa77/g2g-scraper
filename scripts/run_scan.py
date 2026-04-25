@@ -97,8 +97,10 @@ def main() -> int:
 
         score = _score(margin_pct, g2g_lifetime, ccu)
 
-        # Skip rows with no signal at all
-        if not (rb or (gs and gs.matched_offer_count) or (ik and ik.matched)):
+        # Item-focused filter: require G2G item presence (the bot's primary
+        # arbitrage signal). Games without G2G item offers are skipped even if
+        # they have Roblox CCU or Itemku listings.
+        if not (gs and gs.matched_offer_count > 0):
             continue
 
         rows.append([

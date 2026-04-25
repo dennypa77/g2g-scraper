@@ -1,8 +1,11 @@
 """G2G Roblox marketplace collector.
 
-G2G's Roblox category (`rbl-account`) is one umbrella — there is NO per-game
+G2G's Roblox item category (`rbl-item`) is one umbrella — there is NO per-game
 sub-category. We fetch all offers and classify them by matching keyword
-aliases in the offer title.
+aliases in the offer title (titles are formatted "Game Name > Item > Tier").
+
+This collector targets ITEMS, not accounts. To switch back to account scraping,
+change ROBLOX_SEO_TERM to "rbl-account".
 
 Aggregate per matched game:
   - matched_offer_count    (how many live offers reference this game)
@@ -26,7 +29,7 @@ from typing import Iterable
 import requests
 
 SEARCH_URL = "https://sls.g2g.com/offer/search"
-ROBLOX_SEO_TERM = "rbl-account"
+ROBLOX_SEO_TERM = "rbl-item"
 DEFAULT_HEADERS = {
     "User-Agent": "g2g-roblox-bot/0.1",
     "Accept": "application/json",

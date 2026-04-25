@@ -4,15 +4,21 @@ Itemku is a Next.js app — every game category page server-side renders a
 `__NEXT_DATA__` JSON blob containing products + totalItems. No private API,
 no anti-bot beyond a normal User-Agent.
 
+ITEM-FOCUSED MODE: Itemku has no uniform "item" path. Each game exposes its own
+item categories under `gameInfo.item_type[]` (e.g. Blox Fruits has `fruit`,
+Adopt Me has `pet`). We discover those, skip the `akun` (account) entry, and
+aggregate prices across the remaining item categories. Games with no non-akun
+item categories are reported as matched=False so the pipeline filters them out.
+
 Strategy:
   1. Parse Itemku sitemap once to discover all Roblox game slugs (~87).
   2. For each Roblox game from our top list, fuzzy-match name -> Itemku slug.
-  3. For matched games, fetch `/g/<slug>` and parse __NEXT_DATA__ to get the
-     first page of products (32 listings) + `totalItems`.
-  4. Aggregate per game: avg / median price IDR, total listings, etc.
+  3. Fetch `/g/<slug>` to read gameInfo.item_type[] -> list of non-akun item slugs.
+  4. For each item slug, fetch `/g/<slug>/<item_slug>` and combine products.
+  5. Aggregate per game: avg / median price IDR, total listings, etc.
 
 Pagination via query params doesn't work (Itemku uses XHR for page 2+).
-First-page sample is sorted by relevance and is sufficient for price baseline.
+First-page sample per category is sorted by relevance and sufficient for baseline.
 """
 from __future__ import annotations
 
@@ -45,8 +51,9 @@ PAGE_DELAY_S = 0.5
 class ItemkuGameStats:
     game: str                    # canonical name (from caller)
     itemku_slug: str = ""
+    item_categories: list[str] = field(default_factory=list)  # non-akun slugs aggregated
     matched: bool = False
-    total_listings: int = 0      # totalItems reported by Itemku
+    total_listings: int = 0      # sum of totalItems across item categories
     sample_size: int = 0         # how many products we actually loaded
     avg_price_idr: float = 0.0
     median_price_idr: float = 0.0
@@ -60,6 +67,7 @@ class ItemkuGameStats:
         return {
             "game": self.game,
             "itemku_slug": self.itemku_slug,
+            "item_categories": self.item_categories,
             "matched": self.matched,
             "total_listings": self.total_listings,
             "sample_size": self.sample_size,
@@ -144,30 +152,73 @@ def _fetch_next_data(url: str) -> dict:
     return json.loads(m.group(1))
 
 
-def fetch_game_stats(canonical_name: str, slug: str) -> ItemkuGameStats:
-    url = f"https://www.itemku.com/g/{slug}"
-    data = _fetch_next_data(url)
-    pp = data.get("props", {}).get("pageProps", {})
-    products = pp.get("products") or []
-    total = int(pp.get("totalItems") or 0)
+EXCLUDED_CATEGORY_SUBSTRINGS = ("akun", "joki", "jasa", "buddy", "boost", "coaching", "leveling")
 
-    prices = [int(p.get("price")) for p in products if isinstance(p.get("price"), (int, float)) and p.get("price")]
-    orders = sum(int(p.get("order_count") or 0) for p in products)
-    titles = [(p.get("name") or "")[:80] for p in products[:3]]
+
+def _list_item_categories(parent_pp: dict) -> list[str]:
+    """Return tradable item slugs (drop accounts, boosting/coaching services)."""
+    item_types = (parent_pp.get("gameInfo") or {}).get("item_type") or []
+    out: list[str] = []
+    for it in item_types:
+        slug = (it.get("slug") or "").strip().lower()
+        if not slug:
+            continue
+        if any(bad in slug for bad in EXCLUDED_CATEGORY_SUBSTRINGS):
+            continue
+        out.append(slug)
+    return out
+
+
+def fetch_game_stats(canonical_name: str, slug: str) -> ItemkuGameStats:
+    """Fetch ITEM-only stats: discover non-akun categories, aggregate across them."""
+    parent_url = f"https://www.itemku.com/g/{slug}"
+    parent = _fetch_next_data(parent_url)
+    parent_pp = parent.get("props", {}).get("pageProps", {})
+    item_slugs = _list_item_categories(parent_pp)
+
+    if not item_slugs:
+        # Game exists on Itemku but only sells accounts -> not an item-tradable game here.
+        return ItemkuGameStats(
+            game=canonical_name,
+            itemku_slug=slug,
+            item_categories=[],
+            matched=False,
+            itemku_link=parent_url,
+        )
+
+    all_products: list[dict] = []
+    total = 0
+    first_item_slug = item_slugs[0]
+    for it_slug in item_slugs:
+        try:
+            data = _fetch_next_data(f"https://www.itemku.com/g/{slug}/{it_slug}")
+        except Exception:
+            continue
+        pp = data.get("props", {}).get("pageProps", {})
+        prods = pp.get("products") or []
+        all_products.extend(prods)
+        total += int(pp.get("totalItems") or 0)
+        time.sleep(PAGE_DELAY_S)
+
+    prices = [int(p.get("price")) for p in all_products
+              if isinstance(p.get("price"), (int, float)) and p.get("price")]
+    orders = sum(int(p.get("order_count") or 0) for p in all_products)
+    titles = [(p.get("name") or "")[:80] for p in all_products[:3]]
 
     return ItemkuGameStats(
         game=canonical_name,
         itemku_slug=slug,
-        matched=True,
+        item_categories=item_slugs,
+        matched=bool(all_products),
         total_listings=total,
-        sample_size=len(products),
+        sample_size=len(all_products),
         avg_price_idr=(sum(prices) / len(prices)) if prices else 0.0,
         median_price_idr=float(median(prices)) if prices else 0.0,
         min_price_idr=min(prices) if prices else 0,
         max_price_idr=max(prices) if prices else 0,
         sum_order_count=orders,
         sample_titles=titles,
-        itemku_link=url,
+        itemku_link=f"https://www.itemku.com/g/{slug}/{first_item_slug}",
     )
 
 
