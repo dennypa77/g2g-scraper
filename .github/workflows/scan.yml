@@ -28,10 +28,10 @@ jobs:
 
       - name: Write service account credentials
         env:
-          GCP_SA_JSON: ${{ secrets.GCP_SA_JSON }}
+          G2G: ${{ secrets.G2G }}
         run: |
           mkdir -p credentials
-          printf '%s' "$GCP_SA_JSON" > credentials/service_account.json
+          printf '%s' "$G2G" > credentials/service_account.json
           chmod 600 credentials/service_account.json
 
       - name: Run scan
