@@ -1,0 +1,4 @@
+{
+  "_README": "Manual overrides: canonical-game-name -> itemku-slug. Use this when Itemku names a game differently from Roblox (e.g. Fish It! -> fisch-roblox).",
+  "Fish It!": "fisch-roblox"
+}

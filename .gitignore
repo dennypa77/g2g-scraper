@@ -1,0 +1,39 @@
+# Credentials — JANGAN PERNAH DI-COMMIT
+credentials/
+*.json
+!package.json
+!package-lock.json
+!data/*.json
+
+# Environment
+.env
+.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+ENV/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs & local data
+*.log
+data/cache/

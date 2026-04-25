@@ -1,0 +1,47 @@
+name: Hourly Scan
+
+on:
+  schedule:
+    # Runs at minute 5 of every hour (UTC). Offset from :00 to avoid
+    # GitHub's busy-minute throttling on free runners.
+    - cron: '5 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: scan
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Write service account credentials
+        env:
+          GCP_SA_JSON: ${{ secrets.GCP_SA_JSON }}
+        run: |
+          mkdir -p credentials
+          printf '%s' "$GCP_SA_JSON" > credentials/service_account.json
+          chmod 600 credentials/service_account.json
+
+      - name: Run scan
+        env:
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+          SERVICE_ACCOUNT_PATH: credentials/service_account.json
+          PYTHONUNBUFFERED: '1'
+          PYTHONIOENCODING: 'utf-8'
+        run: python scripts/run_scan.py
+
+      - name: Cleanup credentials
+        if: always()
+        run: rm -f credentials/service_account.json
