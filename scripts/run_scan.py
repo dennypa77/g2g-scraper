@@ -32,13 +32,14 @@ HISTORY_TAB = "History"
 ITEMS_TAB = "Items"
 LATEST_COL_RANGE = "O"           # 15 columns A..O
 HISTORY_COL_RANGE = "I"          # 9 columns A..I
-ITEMS_COL_RANGE = "O"            # 15 columns A..O
+ITEMS_COL_RANGE = "P"            # 16 columns A..P
 ITEMS_MAX_ROWS = 1000            # cap to keep the sheet snappy
 TOP_ROBLOX_LIMIT = 100           # how many Roblox games to enrich with details
 
 ITEMS_HEADERS = [
     "Game Name", "Item Name (Itemku)", "Itemku Price (IDR)",
-    "G2G Min (USD)", "G2G Median (USD)", "G2G Median (IDR equiv)",
+    "G2G Min (USD)", "G2G Min (IDR equiv)",
+    "G2G Median (USD)", "G2G Median (IDR equiv)",
     "Margin %", "Profit per Unit (IDR)", "Itemku Order Count",
     "G2G Match Count", "Match Confidence", "G2G Sample Title",
     "Itemku Link", "G2G Link", "Last Updated WIB",
@@ -152,6 +153,7 @@ def main() -> int:
         matches = match_per_game(canonical, ik.products, gs.offers)
         for m in matches:
             cost_idr = m.itemku_price_idr
+            sell_idr_min = m.g2g_min_usd * rate
             sell_idr_med = m.g2g_median_usd * rate
             margin_pct = ((sell_idr_med - cost_idr) / cost_idr * 100) if cost_idr > 0 else 0.0
             profit_idr = int(round(sell_idr_med - cost_idr))
@@ -161,6 +163,7 @@ def main() -> int:
                 m.itemku_name[:120],                    # Item Name
                 cost_idr,                               # Itemku Price (IDR)
                 round(m.g2g_min_usd, 2),                # G2G Min (USD)
+                int(round(sell_idr_min)),               # G2G Min (IDR equiv)
                 round(m.g2g_median_usd, 2),             # G2G Median (USD)
                 int(round(sell_idr_med)),               # G2G Median (IDR equiv)
                 round(margin_pct, 1),                   # Margin %
@@ -175,7 +178,7 @@ def main() -> int:
             ])
 
     # Sort: highest margin first, ties broken by match confidence then profit
-    item_rows.sort(key=lambda r: (r[6], r[10], r[7]), reverse=True)
+    item_rows.sort(key=lambda r: (r[7], r[11], r[8]), reverse=True)
     if len(item_rows) > ITEMS_MAX_ROWS:
         item_rows = item_rows[:ITEMS_MAX_ROWS]
     print(f"      {len(item_rows)} item-level arbitrage rows (median G2G vs Itemku)")

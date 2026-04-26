@@ -49,6 +49,7 @@ ITEMS_HEADERS = [
     "Item Name (Itemku)",
     "Itemku Price (IDR)",
     "G2G Min (USD)",
+    "G2G Min (IDR equiv)",
     "G2G Median (USD)",
     "G2G Median (IDR equiv)",
     "Margin %",

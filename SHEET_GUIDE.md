@@ -108,6 +108,7 @@ cocok ke "Tadpole Bee". Kode di `src/matcher.py`.
 | **Item Name (Itemku)** | Nama listing dari Itemku, dipotong 120 char | Itemku product `name` |
 | **Itemku Price (IDR)** | Harga listing Itemku — ini **harga beli** kamu | Itemku `price` |
 | **G2G Min (USD)** | Harga **termurah** dari semua offer G2G yang match item ini | G2G `unit_price_in_usd` (min) |
+| **G2G Min (IDR equiv)** | G2G min × kurs — termurah di pasar dalam Rupiah, langsung apel-vs-apel sama Itemku Price | Hitungan internal |
 | **G2G Median (USD)** | Harga **realistis** untuk dijual (median, robust ke outlier) | G2G median |
 | **G2G Median (IDR equiv)** | G2G median × kurs USD/IDR — apel-vs-apel dengan kolom Itemku Price | Hitungan internal |
 | **Margin %** | `(G2G median IDR - Itemku IDR) / Itemku IDR × 100`. Belum potong fee G2G! | Hitungan internal |
