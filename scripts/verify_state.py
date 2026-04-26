@@ -10,6 +10,7 @@ EXPECTED = {
     "Latest": 15,
     "History": 9,
     "Watchlist": 5,
+    "Items": 15,
 }
 
 

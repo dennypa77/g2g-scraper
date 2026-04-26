@@ -51,6 +51,7 @@ class G2GGameStats:
     sum_lifetime_orders: int = 0
     sample_titles: list[str] = field(default_factory=list)
     g2g_link: str = f"https://www.g2g.com/categories/{ROBLOX_SEO_TERM}"
+    offers: list[dict] = field(default_factory=list)  # raw matched offers for per-item matcher
 
     @property
     def is_tradable_on_g2g(self) -> bool:
@@ -158,6 +159,7 @@ def aggregate_by_game(
             max_price_usd=max(prices) if prices else 0.0,
             sum_lifetime_orders=orders,
             sample_titles=sample,
+            offers=lst,
         )
     return out
 

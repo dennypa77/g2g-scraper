@@ -62,6 +62,7 @@ class ItemkuGameStats:
     sum_order_count: int = 0     # sum of order_count across the sample
     sample_titles: list[str] = field(default_factory=list)
     itemku_link: str = ""
+    products: list[dict] = field(default_factory=list)  # raw products for per-item matcher
 
     def to_dict(self) -> dict:
         return {
@@ -219,6 +220,7 @@ def fetch_game_stats(canonical_name: str, slug: str) -> ItemkuGameStats:
         sum_order_count=orders,
         sample_titles=titles,
         itemku_link=f"https://www.itemku.com/g/{slug}/{first_item_slug}",
+        products=all_products,
     )
 
 

@@ -17,12 +17,13 @@ SCRIPTS = ROOT / "scripts"
 MENU = [
     ("1", "Full scan (Roblox + G2G + Itemku -> Sheets)", "run_scan.py"),
     ("2", "Test Google Sheets connection",                "test_connection.py"),
-    ("3", "Setup / verify Sheet tabs (Latest, History, Watchlist)", "setup_tabs.py"),
+    ("3", "Setup / verify Sheet tabs (Latest, History, Watchlist, Items)", "setup_tabs.py"),
     ("4", "Verify current Sheet state",                   "verify_state.py"),
     ("5", "Test Roblox collector (popular games + CCU)",  "test_roblox.py"),
     ("6", "Test G2G collector (item offers)",             "test_g2g.py"),
     ("7", "Test Itemku collector (per-game items)",       "test_itemku.py"),
-    ("8", "Show live USD/IDR exchange rate",              None),
+    ("8", "Test per-item matcher (one game, no Sheets write)", "test_matcher.py"),
+    ("9", "Show live USD/IDR exchange rate",              None),
     ("0", "Exit",                                          None),
 ]
 
@@ -52,7 +53,7 @@ def main() -> int:
         for key, label, _ in MENU:
             print(f"  [{key}] {label}")
         print()
-        choice = input("  Choose (0-8): ").strip()
+        choice = input("  Choose (0-9): ").strip()
 
         match = next((m for m in MENU if m[0] == choice), None)
         if not match:
@@ -63,7 +64,7 @@ def main() -> int:
         if key == "0":
             print("  Bye.")
             return 0
-        if key == "8":
+        if key == "9":
             show_exchange_rate()
             continue
 

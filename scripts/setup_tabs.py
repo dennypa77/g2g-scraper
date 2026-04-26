@@ -44,6 +44,24 @@ WATCHLIST_HEADERS = [
     "Active",
 ]
 
+ITEMS_HEADERS = [
+    "Game Name",
+    "Item Name (Itemku)",
+    "Itemku Price (IDR)",
+    "G2G Min (USD)",
+    "G2G Median (USD)",
+    "G2G Median (IDR equiv)",
+    "Margin %",
+    "Profit per Unit (IDR)",
+    "Itemku Order Count",
+    "G2G Match Count",
+    "Match Confidence",
+    "G2G Sample Title",
+    "Itemku Link",
+    "G2G Link",
+    "Last Updated WIB",
+]
+
 
 def main() -> int:
     print("Opening spreadsheet...")
@@ -54,11 +72,12 @@ def main() -> int:
         ("Latest", LATEST_HEADERS),
         ("History", HISTORY_HEADERS),
         ("Watchlist", WATCHLIST_HEADERS),
+        ("Items", ITEMS_HEADERS),
     ]:
         print(f"Ensuring tab '{title}' ({len(headers)} columns)...")
         get_or_create_tab(sh, title, headers)
 
-    print("\nSUKSES. 3 tab utama siap dipakai.")
+    print("\nSUKSES. 4 tab utama siap dipakai.")
     return 0
 
 
